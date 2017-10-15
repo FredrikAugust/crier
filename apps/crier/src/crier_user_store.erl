@@ -22,10 +22,11 @@ stop() ->
     gen_server:call(?MODULE, stop).
 
 add_client(Socket) ->
-    io:format("Adding new client to ETS: ~p~n", [Socket]),
+    lager:info("Adding new client to ETS: ~p.~n", [Socket]),
     gen_server:cast(?MODULE, {add_client, Socket}).
 
 remove_user(Socket) ->
+    lager:info("Removing user ~p.~n", [Socket]),
     gen_server:cast(?MODULE, {remove_user, Socket}).
 
 dispatch_global(Msg, From) ->
@@ -47,21 +48,21 @@ handle_cast({remove_user, Socket}, Table) ->
     ets:delete(Table, Socket),
     {noreply, Table};
 handle_cast({add_client, Socket}, Table) ->
-    io:format("New client added: ~p~n", [Socket]),
+    lager:info("New client added: ~p.~n", [Socket]),
     Pid = spawn_link(crier_user_handle, loop, [Socket]),
     Ref = erlang:monitor(process, Pid),
     ets:insert(Table, {Socket, Pid, Ref}),
     {noreply, Table};
 handle_cast({dispatch_global, Msg, From}, Table) ->
     Users = ets:select(Table, ets:fun2ms(fun({Socket, _Pid, _Ref}) when Socket =/= From -> Socket end)),
-    io:format("Sending msg: ~p to users: ~p.~n", [Msg, Users]),
+    lager:info("Sending msg: ~p to users: ~p.~n", [Msg, Users]),
     lists:foreach(fun(Socket) -> gen_tcp:send(Socket, Msg) end, Users),
     {noreply, Table};
 handle_cast(_Event, State) ->
     {noreply, State}.
 
 handle_info({'DOWN', Ref, process, _Pid, Reason}, Table) ->
-    io:format("Process shutting down[Ref=~p]: ~p~n", [Ref, Reason]),
+    lager:info("Process ~p shutting down: ~p.~n", [Ref, Reason]),
     ets:match_delete(Table, {'_', '_', Ref}),
     {noreply, Table};
 handle_info(_Event, Table) ->

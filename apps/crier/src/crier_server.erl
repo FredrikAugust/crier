@@ -19,10 +19,10 @@ init() ->
 start_server(LSocket) ->
     case gen_tcp:accept(LSocket) of
         {ok, Socket} ->
-            io:format("New connection: ~p~n", [Socket]),
+            lager:info("New connection: ~p.~n", [Socket]),
             crier_user_store:add_client(Socket),
             start_server(LSocket);
         {error, Reason} ->
-            io:format("Error encountered: ~p~n", [Reason]),
+            lager:error("Error encountered: ~p.~n", [Reason]),
             start_server(LSocket)
     end.

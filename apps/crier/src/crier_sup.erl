@@ -29,10 +29,10 @@ start_link() ->
 %% Child :: {Id,StartFunc,Restart,Shutdown,Type,Modules}
 init([]) ->
     {ok, {{one_for_one, 5, 60}, [
-                                #{id => crier_server,
-                                 start => {crier_server, start_link, []}},
-                                #{id => crier_user_store,
-                                 start => {crier_user_store, start_link, []}}
+                                 #{id => crier_server,
+                                  start => {crier_server, start_link, []}},
+                                 #{id => crier_user_store,
+                                  start => {crier_user_store, start_link, []}}
                                ]}}.
 
 %%====================================================================
