@@ -5,9 +5,12 @@
 
 -module(crier_server).
 
+-export([start_link/0]).
 -export([init/0]).
 
--export([loop/1]).
+start_link() ->
+    Pid = spawn_link(?MODULE, init, []),
+    {ok, Pid}.
 
 init() ->
     {ok, LSocket} = gen_tcp:listen(5000, [{active, false}, {packet, line}]),
@@ -16,21 +19,10 @@ init() ->
 start_server(LSocket) ->
     case gen_tcp:accept(LSocket) of
         {ok, Socket} ->
-            io:format("~p~n", [Socket]),
-            spawn(?MODULE, loop, [Socket]),
+            io:format("New connection: ~p~n", [Socket]),
+            crier_user_store:add_client(Socket),
             start_server(LSocket);
         {error, Reason} ->
             io:format("Error encountered: ~p~n", [Reason]),
-            ok
-    end.
-    
-loop(Socket) ->
-    case gen_tcp:recv(Socket, 0) of % 0 here means get all of the data
-        {ok, Packet} ->
-            io:format("~p~n", [Packet]),
-            gen_tcp:send(Socket, "Data Received."),
-            loop(Socket);
-        {error, Reason} ->
-            io:format("Conection closed: ~p~n", [Reason]),
-            ok
+            start_server(LSocket)
     end.
