@@ -1,5 +1,5 @@
 {application, crier,
- [{description, "An OTP application"},
+ [{description, "Partial implementation of IRC"},
   {vsn, "0.1.0"},
   {registered, []},
   {mod, { crier_app, []}},
@@ -10,7 +10,7 @@
   {env,[]},
   {modules, []},
 
-  {maintainers, []},
+  {maintainers, ["Fredrik August Madsen-Malmo"]},
   {licenses, ["Apache 2.0"]},
   {links, []}
  ]}.
