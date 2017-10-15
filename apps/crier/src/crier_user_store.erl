@@ -54,20 +54,11 @@ handle_cast({add_client, Socket}, Table) ->
     {noreply, Table};
 handle_cast({dispatch_global, Msg, From}, Table) ->
     Users = ets:select(Table, ets:fun2ms(fun({Socket, _Pid, _Ref}) when Socket =/= From -> Socket end)),
-    dispatch_messages(Users, Msg),
+    io:format("Sending msg: ~p to users: ~p.~n", [Msg, Users]),
+    lists:foreach(fun(Socket) -> gen_tcp:send(Socket, Msg) end, Users),
     {noreply, Table};
 handle_cast(_Event, State) ->
     {noreply, State}.
-
-%% Helper function; without this, it will crash if only one user is present
-dispatch_messages([], _) ->
-    io:format("No other users connected, message will not be sent along.~n"),
-    ok;
-dispatch_messages(Users, Msg) ->
-    io:format("Sending msg: ~p to users.~n", [Msg]),
-    lists:foreach(fun(Socket) -> gen_tcp:send(Socket, Msg) end, Users),
-    ok.
-
 
 handle_info({'DOWN', Ref, process, _Pid, Reason}, Table) ->
     io:format("Process shutting down[Ref=~p]: ~p~n", [Ref, Reason]),
