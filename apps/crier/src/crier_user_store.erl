@@ -48,10 +48,10 @@ handle_cast({remove_user, Socket}, Table) ->
     ets:delete(Table, Socket),
     {noreply, Table};
 handle_cast({add_client, Socket}, Table) ->
-    lager:info("New client added: ~p.~n", [Socket]),
     Pid = spawn_link(crier_user_handle, loop, [Socket]),
     Ref = erlang:monitor(process, Pid),
     ets:insert(Table, {Socket, Pid, Ref}),
+    lager:info("New client added to ETS: ~p.~n", [Socket]),
     {noreply, Table};
 handle_cast({dispatch_global, Msg, From}, Table) ->
     Users = ets:select(Table, ets:fun2ms(fun({Socket, _Pid, _Ref}) when Socket =/= From -> Socket end)),
