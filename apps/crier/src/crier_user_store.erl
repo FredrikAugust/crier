@@ -8,7 +8,7 @@
 
 -behaviour(gen_server).
 
--export([start_link/0, stop/0, add_client/1, remove_user/1, dispatch_global/2, set_nick/2]).
+-export([start_link/0, stop/0, add_client/1, remove_user/1, dispatch_global/2, update_user_data/3]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, code_change/3, terminate/2]).
 
 -include_lib("stdlib/include/ms_transform.hrl").
@@ -32,9 +32,9 @@ remove_user(Socket) ->
 dispatch_global(Msg, From) ->
     gen_server:cast(?MODULE, {dispatch_global, Msg, From}).
 
-set_nick(Socket, Nick) ->
-    lager:info("Setting ~p's nick to ~p~n", [Socket, Nick]),
-    gen_server:cast(?MODULE, {set_nick, Socket, Nick}).
+update_user_data(Socket, Type, Value) ->
+    lager:info("Setting ~p's ~p to ~p~n", [Socket, Type, Value]),
+    gen_server:cast(?MODULE, {update_user_data, Socket, Type, Value}).
 
 %% CALLBACKS
 
@@ -64,10 +64,10 @@ handle_cast({dispatch_global, Msg, From}, Table) ->
     lager:info("Sending msg: ~p to users: ~p.~n", [Msg, Users]),
     lists:foreach(fun(Socket) -> gen_tcp:send(Socket, Msg) end, Users),
     {noreply, Table};
-handle_cast({set_nick, Socket, Nick}, Table) ->
+handle_cast({update_user_data, Socket, Type, Value}, Table) ->
     [UserData] = ets:select(Table, ets:fun2ms(fun({TSocket, _, _, TUserData}) when TSocket =:= Socket -> TUserData end)),
-    ets:update_element(Table, Socket, {4, UserData#{nick := Nick}}),
-    lager:info("Set ~p's nick to ~p~n", [Socket, Nick]),
+    ets:update_element(Table, Socket, {4, UserData#{Type := Value}}),
+    lager:info("Set ~p's ~p to ~p~n", [Socket, Type, Value]),
     {noreply, Table};
 handle_cast(_Event, State) ->
     {noreply, State}.
