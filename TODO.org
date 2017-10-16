@@ -1,12 +1,24 @@
 * DONE add connection to pool of connections on connecting with the server
 * TODO handle ping-ing the client to check if it's alive
-* TODO parsing input to IRC standards
+* DONE parsing input to IRC standards
 ** TODO create a module for interpreting input
 * DONE migrate error logs to lager
 * DONE store user record
 * TODO check if nick/username is taken before assigning
+** TODO send appropriate error codes
+* TODO find a way to get the hostname of the server and user
+* TODO send post-reg messages to client if username and nick are set
+#+BEGIN_SRC 
+001 RPL_WELCOME
+002 RPL_YOURHOST
+003 RPL_CREATED
+004 RPL_MYINFO
+#+END_SRC
 
 * Notes
+
+IRC response codes
+https://www.alien.net.au/irc/irc2numerics.html
 
 On weechat connect
 

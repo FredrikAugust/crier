@@ -32,6 +32,7 @@ remove_user(Socket) ->
 dispatch_global(Msg, From) ->
     gen_server:cast(?MODULE, {dispatch_global, Msg, From}).
 
+%% Check in here if the user is ready for post-reg
 update_user_data(Socket, Type, Value) ->
     lager:info("Setting ~p's ~p to ~p~n", [Socket, Type, Value]),
     gen_server:cast(?MODULE, {update_user_data, Socket, Type, Value}).
