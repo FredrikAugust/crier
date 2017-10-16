@@ -24,6 +24,14 @@
   Short description of what module does
 ** TODO add short description of each complicated function
 
+* TODO handle joining a channel
+#+BEGIN_SRC txt
+SYNTAX:
+:<nick>!~<username>@<host> JOIN #<channel>
+
+host=name of server for us
+#+END_SRC
+
 * Notes
 
 IRC response codes
