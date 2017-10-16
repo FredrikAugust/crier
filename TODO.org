@@ -1,5 +1,6 @@
 * DONE add connection to pool of connections on connecting with the server
 * TODO handle ping-ing the client to check if it's alive
+** DONE handle incoming pings from client
 * DONE parsing input to IRC standards
 ** TODO create a module for interpreting input
 * DONE migrate error logs to lager

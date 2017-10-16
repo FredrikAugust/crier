@@ -43,7 +43,6 @@ post_reg_handle(Socket, #{nick := Nick, username := Username, post_reg_complete 
 post_reg_handle(_, _) ->
     ok.
 
-
 %% CALLBACKS
 
 init([]) ->

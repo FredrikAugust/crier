@@ -15,6 +15,8 @@ loop(Socket) ->
         {ok, Packet} ->
             lager:info("Packet ~p received from ~p~n", [Packet, Socket]),
             case Packet of
+                "PING " ++ Host ->
+                    crier_user_messages:pong(Socket, strip_crlf(Host));b
                 "NICK " ++ Nick ->
                     crier_user_store:update_user_data(Socket, nick, strip_crlf(Nick));
                 "USER " ++ UserData ->
