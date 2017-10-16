@@ -32,10 +32,17 @@ remove_user(Socket) ->
 dispatch_global(Msg, From) ->
     gen_server:cast(?MODULE, {dispatch_global, Msg, From}).
 
-%% Check in here if the user is ready for post-reg
 update_user_data(Socket, Type, Value) ->
     lager:info("Setting ~p's ~p to ~p~n", [Socket, Type, Value]),
-    gen_server:cast(?MODULE, {update_user_data, Socket, Type, Value}).
+    NewData = gen_server:call(?MODULE, {update_user_data, Socket, Type, Value}),
+    post_reg_handle(Socket, NewData).
+
+post_reg_handle(Socket, #{nick := Nick, username := Username, post_reg_complete := no}) when is_list(Nick) andalso is_list(Username) ->
+    crier_user_messages:post_reg(Socket, Nick),
+    update_user_data(Socket, post_reg_complete, yes);
+post_reg_handle(_, _) ->
+    ok.
+
 
 %% CALLBACKS
 
@@ -46,6 +53,12 @@ init([]) ->
 handle_call(stop, _From, Table) ->
     ets:delete(Table),
     {stop, normal, ok, Table};
+handle_call({update_user_data, Socket, Type, Value}, _From, Table) ->
+    [UserData] = ets:select(Table, ets:fun2ms(fun({TSocket, _, _, TUserData}) when TSocket =:= Socket -> TUserData end)),
+    ets:update_element(Table, Socket, {4, UserData#{Type := Value}}),
+    lager:info("Set ~p's ~p to ~p~n", [Socket, Type, Value]),
+    [NewData] = ets:select(Table, ets:fun2ms(fun({TSocket, _, _, TUserData}) when TSocket =:= Socket -> TUserData end)),
+    {reply, NewData, Table};
 handle_call(_Event, _From, Table) ->
     {noreply, Table}.
 
@@ -56,19 +69,15 @@ handle_cast({add_client, Socket}, Table) ->
     Pid = spawn_link(crier_user_handle, loop, [Socket]),
     Ref = erlang:monitor(process, Pid),
     ets:insert(Table, {Socket, Pid, Ref,
-                       #{nick => "", username => "",
-                        realname => "", channels => []}}),
+                       #{nick => null, username => null,
+                        realname => null, channels => [],
+                        post_reg_complete => no}}),
     lager:info("New client added to ETS: ~p.~n", [Socket]),
     {noreply, Table};
 handle_cast({dispatch_global, Msg, From}, Table) ->
     Users = ets:select(Table, ets:fun2ms(fun({Socket, _Pid, _Ref, _UserData}) when Socket =/= From -> Socket end)),
     lager:info("Sending msg: ~p to users: ~p.~n", [Msg, Users]),
     lists:foreach(fun(Socket) -> gen_tcp:send(Socket, Msg) end, Users),
-    {noreply, Table};
-handle_cast({update_user_data, Socket, Type, Value}, Table) ->
-    [UserData] = ets:select(Table, ets:fun2ms(fun({TSocket, _, _, TUserData}) when TSocket =:= Socket -> TUserData end)),
-    ets:update_element(Table, Socket, {4, UserData#{Type := Value}}),
-    lager:info("Set ~p's ~p to ~p~n", [Socket, Type, Value]),
     {noreply, Table};
 handle_cast(_Event, State) ->
     {noreply, State}.

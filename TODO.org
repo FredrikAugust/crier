@@ -6,23 +6,11 @@
 * DONE store user record
 * TODO check if nick/username is taken before assigning
 ** TODO send appropriate error codes
-* TODO find a way to get the hostname of the server and user
-* TODO send post-reg messages to client if username and nick are set
-#+BEGIN_SRC 
-001 RPL_WELCOME
-002 RPL_YOURHOST
-003 RPL_CREATED
-004 RPL_MYINFO
-#+END_SRC
+* TODO find a way to get the address of the server and hostname of the user
+use inet:gethostname/0
+* DONE send post-reg messages to client if username and nick are set
 
 * Notes
 
 IRC response codes
 https://www.alien.net.au/irc/irc2numerics.html
-
-On weechat connect
-
-#+BEGIN_SRC
-NICK fredrik\r\n
-USER fredrik 0 * :fredrik\r\n
-#+END_SRC
