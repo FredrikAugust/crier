@@ -1,6 +1,6 @@
 %%%-------------------------------------------------------------------
-%% @doc this is where we will store association between
-%% PID of handler and Socket
+%% @doc handles all direct interaction between ETS store
+%% and the rest of the code
 %% @end
 %%%-------------------------------------------------------------------
 
@@ -37,6 +37,7 @@ update_user_data(Socket, Type, Value) ->
     NewData = gen_server:call(?MODULE, {update_user_data, Socket, Type, Value}),
     post_reg_handle(Socket, NewData).
 
+%% TODO: Move out of this file
 post_reg_handle(Socket, #{nick := Nick, username := Username, post_reg_complete := no}) when is_list(Nick) andalso is_list(Username) ->
     crier_user_messages:post_reg(Socket, Nick),
     update_user_data(Socket, post_reg_complete, yes);
@@ -44,23 +45,24 @@ post_reg_handle(_, _) ->
     ok.
 
 %% CALLBACKS
-
 init([]) ->
     ?MODULE = ets:new(?MODULE, [set, named_table, public]),
     {ok, ?MODULE}.
 
-handle_call(stop, _From, Table) ->
-    ets:delete(Table),
-    {stop, normal, ok, Table};
+%% CALLS
 handle_call({update_user_data, Socket, Type, Value}, _From, Table) ->
     [UserData] = ets:select(Table, ets:fun2ms(fun({TSocket, _, _, TUserData}) when TSocket =:= Socket -> TUserData end)),
     ets:update_element(Table, Socket, {4, UserData#{Type := Value}}),
     lager:info("Set ~p's ~p to ~p~n", [Socket, Type, Value]),
     [NewData] = ets:select(Table, ets:fun2ms(fun({TSocket, _, _, TUserData}) when TSocket =:= Socket -> TUserData end)),
     {reply, NewData, Table};
+handle_call(stop, _From, Table) ->
+    ets:delete(Table),
+    {stop, normal, ok, Table};
 handle_call(_Event, _From, Table) ->
     {noreply, Table}.
 
+%% CASTS
 handle_cast({remove_user, Socket}, Table) ->
     ets:delete(Table, Socket),
     {noreply, Table};
@@ -81,6 +83,7 @@ handle_cast({dispatch_global, Msg, From}, Table) ->
 handle_cast(_Event, State) ->
     {noreply, State}.
 
+%% INFO
 handle_info({'DOWN', Ref, process, _Pid, Reason}, Table) ->
     lager:info("Process ~p shutting down: ~p.~n", [Ref, Reason]),
     ets:match_delete(Table, {'_', '_', Ref, '_'}),
@@ -88,8 +91,10 @@ handle_info({'DOWN', Ref, process, _Pid, Reason}, Table) ->
 handle_info(_Event, Table) ->
     {noreply, Table}.
 
+%% CODE CHANGE
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
  
+%% TERMINATION
 terminate(_Reason, _State) ->
     ok.

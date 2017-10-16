@@ -1,5 +1,6 @@
 %%%-------------------------------------------------------------------
-%% @doc handles incoming messages to the user
+%% @doc handles incoming messages to the user and parses
+%% them according to IRC protocol
 %% end
 %%%-------------------------------------------------------------------
 
@@ -16,7 +17,7 @@ loop(Socket) ->
             lager:info("Packet ~p received from ~p~n", [Packet, Socket]),
             case Packet of
                 "PING " ++ Host ->
-                    crier_user_messages:pong(Socket, strip_crlf(Host));b
+                    crier_user_messages:pong(Socket, strip_crlf(Host));
                 "NICK " ++ Nick ->
                     crier_user_store:update_user_data(Socket, nick, strip_crlf(Nick));
                 "USER " ++ UserData ->

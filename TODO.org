@@ -1,15 +1,28 @@
 * DONE add connection to pool of connections on connecting with the server
 * TODO handle ping-ing the client to check if it's alive
+  Spawn alongside handler in crier_server.
+  If the client does not respond in time, send a call over to
+  the remove_client function in crier_user_store.
+** TODO figure out a way to kill connections
 ** DONE handle incoming pings from client
 * DONE parsing input to IRC standards
-** TODO create a module for interpreting input
+** DONE create a module for interpreting input
 * DONE migrate error logs to lager
 * DONE store user record
 * TODO check if nick/username is taken before assigning
+  Shouldn't be too hard, just make sure response is `[]` from
+  a selection query before setting the nick.
 ** TODO send appropriate error codes
+   Refer to table at the bottom of this doc
 * TODO find a way to get the address of the server and hostname of the user
-use inet:gethostname/0
+  Perhaps an environment variable?
 * DONE send post-reg messages to client if username and nick are set
+* TODO write tests
+  Use CommonTest, seems to work best (and easiest)
+* TODO move non-store related business out of crier_user_store
+* DONE write module doc for all modules
+  Short description of what module does
+** TODO add short description of each complicated function
 
 * Notes
 

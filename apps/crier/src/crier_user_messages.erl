@@ -1,3 +1,9 @@
+%%%-------------------------------------------------------------------
+%% @doc handles sending standardized IRC messages to the
+%% client
+%% @end
+%%%-------------------------------------------------------------------
+
 -module(crier_user_messages).
 
 -export([post_reg/2, pong/2]).
