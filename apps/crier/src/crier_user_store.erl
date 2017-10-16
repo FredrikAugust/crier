@@ -8,7 +8,7 @@
 
 -behaviour(gen_server).
 
--export([start_link/0, stop/0, add_client/1, remove_user/1, dispatch_global/2]).
+-export([start_link/0, stop/0, add_client/1, remove_user/1, dispatch_global/2, set_nick/2]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, code_change/3, terminate/2]).
 
 -include_lib("stdlib/include/ms_transform.hrl").
@@ -32,6 +32,10 @@ remove_user(Socket) ->
 dispatch_global(Msg, From) ->
     gen_server:cast(?MODULE, {dispatch_global, Msg, From}).
 
+set_nick(Socket, Nick) ->
+    lager:info("Setting ~p's nick to ~p~n", [Socket, Nick]),
+    gen_server:cast(?MODULE, {set_nick, Socket, Nick}).
+
 %% CALLBACKS
 
 init([]) ->
@@ -50,20 +54,27 @@ handle_cast({remove_user, Socket}, Table) ->
 handle_cast({add_client, Socket}, Table) ->
     Pid = spawn_link(crier_user_handle, loop, [Socket]),
     Ref = erlang:monitor(process, Pid),
-    ets:insert(Table, {Socket, Pid, Ref}),
+    ets:insert(Table, {Socket, Pid, Ref,
+                       #{nick => "", username => "",
+                        realname => "", channels => []}}),
     lager:info("New client added to ETS: ~p.~n", [Socket]),
     {noreply, Table};
 handle_cast({dispatch_global, Msg, From}, Table) ->
-    Users = ets:select(Table, ets:fun2ms(fun({Socket, _Pid, _Ref}) when Socket =/= From -> Socket end)),
+    Users = ets:select(Table, ets:fun2ms(fun({Socket, _Pid, _Ref, _UserData}) when Socket =/= From -> Socket end)),
     lager:info("Sending msg: ~p to users: ~p.~n", [Msg, Users]),
     lists:foreach(fun(Socket) -> gen_tcp:send(Socket, Msg) end, Users),
+    {noreply, Table};
+handle_cast({set_nick, Socket, Nick}, Table) ->
+    [UserData] = ets:select(Table, ets:fun2ms(fun({TSocket, _, _, TUserData}) when TSocket =:= Socket -> TUserData end)),
+    ets:update_element(Table, Socket, {4, UserData#{nick := Nick}}),
+    lager:info("Set ~p's nick to ~p~n", [Socket, Nick]),
     {noreply, Table};
 handle_cast(_Event, State) ->
     {noreply, State}.
 
 handle_info({'DOWN', Ref, process, _Pid, Reason}, Table) ->
     lager:info("Process ~p shutting down: ~p.~n", [Ref, Reason]),
-    ets:match_delete(Table, {'_', '_', Ref}),
+    ets:match_delete(Table, {'_', '_', Ref, '_'}),
     {noreply, Table};
 handle_info(_Event, Table) ->
     {noreply, Table}.

@@ -10,8 +10,13 @@
 loop(Socket) ->
     case gen_tcp:recv(Socket, 0) of
         {ok, Packet} ->
-            lager:info("Dispatching message from ~p: ~p.~n", [Socket, Packet]),
-            crier_user_store:dispatch_global(Packet, Socket),
+            lager:info("Packet ~p received from ~p~n", [Packet, Socket]),
+            case Packet of
+                "NICK " ++ Nick ->
+                    crier_user_store:set_nick(Socket, Nick);
+                _ ->
+                    crier_user_store:dispatch_global(Packet, Socket)
+            end,
             loop(Socket);
         {error, Reason} ->
             lager:info("crier_user_handle ~p shutting down: ~p.~n", [Socket, Reason]),

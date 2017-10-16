@@ -2,4 +2,15 @@
 * TODO handle ping-ing the client to check if it's alive
 * TODO parsing input to IRC standards
 ** TODO create a module for interpreting input
-* TODO migrate error logs to lager
+* DONE migrate error logs to lager
+* DONE store user record
+* TODO check if nick/username is taken before assigning
+
+* Notes
+
+On weechat connect
+
+#+BEGIN_SRC
+NICK fredrik\r\n
+USER fredrik 0 * :fredrik\r\n
+#+END_SRC
