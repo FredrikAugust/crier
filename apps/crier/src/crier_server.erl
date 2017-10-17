@@ -1,5 +1,8 @@
 %%%-------------------------------------------------------------------
-%% @doc server to handle incoming requests for crier
+%% @doc Server to handle incoming requests for crier.
+%% Creates a process which handles the incoming packets
+%% from the user. This module does not handle any of the
+%% logic related to the IRC protocol.
 %% @end
 %%%-------------------------------------------------------------------
 

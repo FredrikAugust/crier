@@ -1,6 +1,8 @@
 %%%-------------------------------------------------------------------
-%% @doc handles incoming messages to the user and parses
-%% them according to IRC protocol
+%% @doc Handles incoming messages to the user and parses
+%% them according to IRC protocol. This module does not
+%% handle interaction with the database, just the parsing
+%% of the messages.
 %% end
 %%%-------------------------------------------------------------------
 

@@ -22,7 +22,7 @@
 * TODO move non-store related business out of crier_user_store
 * DONE write module doc for all modules
   Short description of what module does
-** TODO add short description of each complicated function
+** DONE add short description of each complicated function
 
 * TODO handle joining a channel
 #+BEGIN_SRC txt

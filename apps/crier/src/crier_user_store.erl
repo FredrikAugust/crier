@@ -1,6 +1,7 @@
 %%%-------------------------------------------------------------------
-%% @doc handles all direct interaction between ETS store
-%% and the rest of the code
+%% @doc Handles all direct interaction between ETS store
+%% and the rest of the code. Also responsible for managing
+%% the state of each client connected.
 %% @end
 %%%-------------------------------------------------------------------
 
@@ -35,14 +36,7 @@ dispatch_global(Msg, From) ->
 update_user_data(Socket, Type, Value) ->
     lager:info("Setting ~p's ~p to ~p~n", [Socket, Type, Value]),
     NewData = gen_server:call(?MODULE, {update_user_data, Socket, Type, Value}),
-    post_reg_handle(Socket, NewData).
-
-%% TODO: Move out of this file
-post_reg_handle(Socket, #{nick := Nick, username := Username, post_reg_complete := no}) when is_list(Nick) andalso is_list(Username) ->
-    crier_user_messages:post_reg(Socket, Nick),
-    update_user_data(Socket, post_reg_complete, yes);
-post_reg_handle(_, _) ->
-    ok.
+    crier_checks:post_reg_check(Socket, NewData).
 
 %% CALLBACKS
 init([]) ->

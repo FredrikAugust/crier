@@ -1,7 +1,7 @@
 {application, crier,
  [{description, "Partial implementation of IRC"},
-  {vsn, "0.6.0"},
-  {registered, [crier_user_store, crier_server, crier_user_handle, crier_sup, crier_user_messages]},
+  {vsn, "0.6.1"},
+  {registered, [crier_user_store, crier_server, crier_user_handle, crier_sup, crier_user_messages, crier_checks]},
   {mod, { crier_app, []}},
   {applications,
    [kernel,
@@ -9,7 +9,7 @@
     lager
    ]},
   {env,[]},
-  {modules, [crier_user_store, crier_server, crier_user_handle, crier_sup, crier_user_messages]},
+  {modules, [crier_user_store, crier_server, crier_user_handle, crier_sup, crier_user_messages, crier_checks]},
 
   {maintainers, ["Fredrik August Madsen-Malmo"]},
   {licenses, ["Apache 2.0"]},

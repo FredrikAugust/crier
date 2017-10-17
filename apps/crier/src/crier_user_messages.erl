@@ -1,6 +1,8 @@
 %%%-------------------------------------------------------------------
-%% @doc handles sending standardized IRC messages to the
-%% client
+%% @doc Responsible for sending messages to the client.
+%% Uses the pre-defined IRC codes to ensure compatability
+%% with all clients. All functions should return `ok` or
+%% raise an error if something unexpected happens.
 %% @end
 %%%-------------------------------------------------------------------
 
