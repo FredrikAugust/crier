@@ -9,7 +9,7 @@
 
 -behaviour(gen_server).
 
--export([start_link/0, stop/0, add_client/1, remove_user/1, dispatch_global/1, update_user_data/3]).
+-export([start_link/0, all/0, stop/0, add_client/1, remove_user/1, dispatch_global/1, update_user_data/3]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, code_change/3, terminate/2]).
 
 -include_lib("stdlib/include/ms_transform.hrl").
@@ -29,6 +29,9 @@ add_client(Socket) ->
 remove_user(Socket) ->
     lager:info("Removing user ~p.~n", [Socket]),
     gen_server:cast(?MODULE, {remove_user, Socket}).
+
+all() ->
+    gen_server:call(?MODULE, all).
 
 %% @doc Sends a messages to all users
 dispatch_global(Msg) ->
@@ -51,6 +54,8 @@ handle_call({update_user_data, Socket, Type, Value}, _From, Table) ->
     lager:info("Set ~p's ~p to ~p~n", [Socket, Type, Value]),
     [NewData] = ets:select(Table, ets:fun2ms(fun({TSocket, _, _, TUserData}) when TSocket =:= Socket -> TUserData end)),
     {reply, NewData, Table};
+handle_call(all, _From, Table) ->
+    ets:select(Table, ets:fun2ms(fun(User) -> User end));
 handle_call(stop, _From, Table) ->
     ets:delete(Table),
     {stop, normal, ok, Table};
