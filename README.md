@@ -10,7 +10,7 @@ Usage
 -----
 
     $ rebar3 release
-    $ ./_build/default/rel/<release>/bin/<release> <start|foreground>
+    $ ./_build/default/rel/crier/bin/crier <start|foreground>
     
 Notes
 -----
