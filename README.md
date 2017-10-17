@@ -15,7 +15,7 @@ Usage
 Notes
 -----
 
-This will run the IRC server on localhost/5000 (IRC format, localhost:5000).
+This will run the IRC server on `localhost/5000` (IRC format, `localhost:5000`).
 
 Implementation status can partially be found in the `TODO.org` file, a more
 detailed list will be added to this file later.
