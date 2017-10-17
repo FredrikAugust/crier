@@ -3,8 +3,9 @@ crier_app.erl,27
 start(17,458
 stop(21,591
 
-crier_checks.erl,23
-post_reg_check(14,420
+crier_checks.erl,43
+post_reg_check(14,435
+unique_nick(22,817
 
 crier_server.erl,53
 start_link(14,425
@@ -17,8 +18,8 @@ start_link(22,497
 init(30,796
 
 crier_user_handle.erl,32
-strip_crlf(15,440
-loop(18,499
+strip_crlf(13,390
+loop(16,449
 
 crier_user_messages.erl,179
 -define(HOST12,435
@@ -30,17 +31,17 @@ crier_user_messages.erl,179
 post_reg(22,624
 pong(30,1097
 
-crier_user_store.erl,261
-start_link(19,626
-stop(22,705
-add_client(25,752
-remove_user(29,888
-query_users(33,1014
-dispatch_global(38,1167
-update_user_data(41,1246
-init(47,1498
-handle_call(52,1599
-handle_cast(67,2324
-handle_info(88,3200
-code_change(96,3467
-terminate(100,3540
+crier_user_store.erl,252
+start_link(19,618
+stop(22,697
+add_client(25,744
+remove_user(29,880
+all(33,1006
+dispatch_global(37,1089
+update_user_data(40,1168
+init(46,1420
+handle_call(51,1521
+handle_cast(66,2261
+handle_info(87,3137
+code_change(95,3404
+terminate(99,3477

@@ -55,7 +55,7 @@ handle_call({update_user_data, Socket, Type, Value}, _From, Table) ->
     [NewData] = ets:select(Table, ets:fun2ms(fun({TSocket, _, _, TUserData}) when TSocket =:= Socket -> TUserData end)),
     {reply, NewData, Table};
 handle_call(all, _From, Table) ->
-    ets:select(Table, ets:fun2ms(fun(User) -> User end));
+    {reply, ets:select(Table, ets:fun2ms(fun(User) -> User end)), Table};
 handle_call(stop, _From, Table) ->
     ets:delete(Table),
     {stop, normal, ok, Table};

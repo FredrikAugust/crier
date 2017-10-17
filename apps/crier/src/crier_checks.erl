@@ -22,7 +22,7 @@ post_reg_check(_, _) ->
 unique_nick(_Nick, []) ->
     unique;
 unique_nick(Nick, [CurrNick|Nicks]) ->
-    case CurrNick =:= Nick of
+    case (Nick -- "\r\n") =:= CurrNick of
         true ->
             not_unique;
         false ->

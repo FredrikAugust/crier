@@ -21,7 +21,13 @@ loop(Socket) ->
                 "PING " ++ Host ->
                     crier_user_messages:pong(Socket, strip_crlf(Host));
                 "NICK " ++ Nick ->
-                    crier_user_store:update_user_data(Socket, nick, strip_crlf(Nick));
+                    case crier_checks:unique_nick(Nick) of
+                        unique ->
+                            crier_user_store:update_user_data(Socket, nick, strip_crlf(Nick));
+                        not_unique ->
+                            %% FIXME: send correct error codes
+                            crier_user_store:dispatch_global("NON UNIQUE")
+                    end;
                 "USER " ++ UserData ->
                     UserDataList = string:split(UserData, " ", all),
                     Username = lists:nth(1, UserDataList),
