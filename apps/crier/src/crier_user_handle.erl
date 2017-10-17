@@ -29,7 +29,7 @@ loop(Socket) ->
                     crier_user_store:update_user_data(Socket, username, Username),
                     crier_user_store:update_user_data(Socket, realname, strip_crlf(Realname -- ":"));
                 _ ->
-                    crier_user_store:dispatch_global(Packet, Socket)
+                    crier_user_store:dispatch_global(Packet)
             end,
             loop(Socket);
         {error, Reason} ->

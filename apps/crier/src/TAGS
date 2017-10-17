@@ -1,12 +1,15 @@
 
 crier_app.erl,27
-start(17,427
-stop(21,560
+start(17,458
+stop(21,591
+
+crier_checks.erl,23
+post_reg_check(14,420
 
 crier_server.erl,53
-start_link(11,273
-init(15,346
-start_server(19,461
+start_link(14,425
+init(18,498
+start_server(22,613
 
 crier_sup.erl,54
 -define(SERVER16,310
@@ -14,28 +17,30 @@ start_link(22,497
 init(30,796
 
 crier_user_handle.erl,32
-strip_crlf(10,245
-loop(13,304
+strip_crlf(15,440
+loop(18,499
 
-crier_user_messages.erl,139
--define(HOST4,53
--define(RPL_WELCOME7,97
--define(RPL_YOURHOST8,127
--define(RPL_CREATED9,158
--define(RPL_MYINFO10,188
-post_reg(12,218
+crier_user_messages.erl,179
+-define(HOST12,435
+-define(CRLF14,466
+-define(RPL_WELCOME17,503
+-define(RPL_YOURHOST18,533
+-define(RPL_CREATED19,564
+-define(RPL_MYINFO20,594
+post_reg(22,624
+pong(30,1097
 
-crier_user_store.erl,262
-start_link(18,541
-stop(21,620
-add_client(24,667
-remove_user(28,803
-dispatch_global(32,929
-update_user_data(35,1020
-handle_postreg(39,1199
-init(44,1246
-handle_call(48,1338
-handle_cast(54,1487
-handle_info(80,2776
-code_change(87,3028
-terminate(90,3086
+crier_user_store.erl,261
+start_link(19,626
+stop(22,705
+add_client(25,752
+remove_user(29,888
+query_users(33,1014
+dispatch_global(38,1167
+update_user_data(41,1246
+init(47,1498
+handle_call(52,1599
+handle_cast(67,2324
+handle_info(88,3200
+code_change(96,3467
+terminate(100,3540

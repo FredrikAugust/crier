@@ -9,7 +9,7 @@
 
 -behaviour(gen_server).
 
--export([start_link/0, stop/0, add_client/1, remove_user/1, dispatch_global/2, update_user_data/3]).
+-export([start_link/0, stop/0, add_client/1, remove_user/1, dispatch_global/1, update_user_data/3]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, code_change/3, terminate/2]).
 
 -include_lib("stdlib/include/ms_transform.hrl").
@@ -30,8 +30,9 @@ remove_user(Socket) ->
     lager:info("Removing user ~p.~n", [Socket]),
     gen_server:cast(?MODULE, {remove_user, Socket}).
 
-dispatch_global(Msg, From) ->
-    gen_server:cast(?MODULE, {dispatch_global, Msg, From}).
+%% @doc Sends a messages to all users
+dispatch_global(Msg) ->
+    gen_server:cast(?MODULE, {dispatch_global, Msg}).
 
 update_user_data(Socket, Type, Value) ->
     lager:info("Setting ~p's ~p to ~p~n", [Socket, Type, Value]),
@@ -69,8 +70,8 @@ handle_cast({add_client, Socket}, Table) ->
                         post_reg_complete => no}}),
     lager:info("New client added to ETS: ~p.~n", [Socket]),
     {noreply, Table};
-handle_cast({dispatch_global, Msg, From}, Table) ->
-    Users = ets:select(Table, ets:fun2ms(fun({Socket, _Pid, _Ref, _UserData}) when Socket =/= From -> Socket end)),
+handle_cast({dispatch_global, Msg}, Table) ->
+    Users = ets:select(Table, ets:fun2ms(fun({Socket, _, _, _}) -> Socket end)),
     lager:info("Sending msg: ~p to users: ~p.~n", [Msg, Users]),
     lists:foreach(fun(Socket) -> gen_tcp:send(Socket, Msg) end, Users),
     {noreply, Table};
