@@ -51,6 +51,8 @@ loop(Socket) ->
                     end;
                 "JOIN " ++ Channel ->
                     crier_user_store:join_channel(Socket, strip_crlf(Channel));
+                "NAMES " ++ Channel ->
+                    crier_user_messages:channel_names_list(Socket, strip_crlf(Channel));
                 Command ->
                     crier_user_messages:unknown_command(Socket, strip_crlf(Command))
             end,

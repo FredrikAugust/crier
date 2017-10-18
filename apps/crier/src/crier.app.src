@@ -1,6 +1,6 @@
 {application, crier,
  [{description, "Partial implementation of IRC"},
-  {vsn, "0.7.0"},
+  {vsn, "1.0.0"},
   {registered, [crier_user_store, crier_server, crier_user_handle, crier_sup, crier_user_messages, crier_checks]},
   {mod, { crier_app, []}},
   {applications,
