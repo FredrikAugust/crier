@@ -28,8 +28,8 @@ add_client(Socket) ->
 
 join_channel(Socket, Channel) ->
     lager:info("User ~p joining channel ~p.~n", [Socket, Channel]),
-    Users = gen_server:call(?MODULE, {join_channel, Socket, Channel}),
-    crier_user_messages:channel_join(Users, Channel).
+    {UserData, Users} = gen_server:call(?MODULE, {join_channel, Socket, Channel}),
+    crier_user_messages:channel_join(UserData, Users, Channel).
 
 remove_user(Socket) ->
     lager:info("Removing user ~p.~n", [Socket]),
@@ -43,7 +43,7 @@ dispatch_global(Msg) ->
     gen_server:cast(?MODULE, {dispatch_global, Msg}).
 
 update_user_data(Socket, Type, Value) ->
-    lager:info("Setting ~p's ~p to ~p.~n", [Socket, Type, Value]),
+    lager:debug("Setting ~p's ~p to ~p.~n", [Socket, Type, Value]),
     NewData = gen_server:call(?MODULE, {update_user_data, Socket, Type, Value}),
     crier_checks:post_reg_check(Socket, NewData).
     
@@ -58,7 +58,7 @@ init([]) ->
 handle_call({update_user_data, Socket, Type, Value}, _From, Table) ->
     [UserData] = ets:select(Table, ets:fun2ms(fun({TSocket, _, _, TUserData}) when TSocket =:= Socket -> TUserData end)),
     ets:update_element(Table, Socket, {4, UserData#{Type := Value}}),
-    lager:info("Set ~p's ~p to ~p.~n", [Socket, Type, Value]),
+    lager:debug("Set ~p's ~p to ~p.~n", [Socket, Type, Value]),
     [NewData] = ets:select(Table, ets:fun2ms(fun({TSocket, _, _, TUserData}) when TSocket =:= Socket -> TUserData end)),
     {reply, NewData, Table};
 
@@ -69,7 +69,7 @@ handle_call({join_channel, USocket, Channel}, _From, Table) ->
     [UserData] = ets:select(Table, ets:fun2ms(fun({TSocket, _, _, TUserData}) when TSocket =:= USocket -> TUserData end)),
     ets:update_element(Table, USocket, {4, UserData#{channels := maps:get(channels, UserData) ++ [Channel]}}),
     Users = ets:select(Table, ets:fun2ms(fun({TSocket, _, _, TUserData}) -> {TSocket, TUserData} end)),
-    {reply, Users, Table};
+    {reply, {UserData, Users}, Table};
 
 handle_call(stop, _From, Table) ->
     ets:delete(Table),

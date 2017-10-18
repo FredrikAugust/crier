@@ -3,7 +3,7 @@
   Spawn alongside handler in crier_server.
   If the client does not respond in time, send a call over to
   the remove_client function in crier_user_store.
-** TODO figure out a way to kill connections
+** TODO figure out a way to kill connections when they don't respond
 ** DONE handle incoming pings from client
 * DONE parsing input to IRC standards
 ** DONE create a module for interpreting input
@@ -23,14 +23,17 @@
 * DONE write module doc for all modules
   Short description of what module does
 ** DONE add short description of each complicated function
-* TODO handle joining a channel
+* DONE handle joining a channel
 #+BEGIN_SRC txt
 SYNTAX:
 :<nick>!~<username>@<host> JOIN #<channel>
 
 host=name of server for us
 #+END_SRC
-
+* TODO handle leaving a channel
+* TODO handle nick-change
+* TODO handle kicking (banning will be skipped for simplicities sake)
+* TODO handle user modes (operator, mod..)
 * TODO use regex for handling IRC messages parsing
   Current system is plain stupid, but it works for now ;)
 * Notes

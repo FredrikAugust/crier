@@ -8,7 +8,7 @@
 
 -module(crier_user_messages).
 
--export([post_reg/2, pong/2, nick_taken/2, unknown_command/2, too_few_params/2, channel_join/2]).
+-export([post_reg/2, pong/2, nick_taken/2, unknown_command/2, too_few_params/2, channel_join/3]).
 -define(HOST, ":localhost ").
 
 -define(CRLF, "\r\n").
@@ -51,7 +51,7 @@ pong(Socket, Host) ->
     gen_tcp:send(Socket, ?IRC_REPLY(?PONG, Host ++ " " ++ ?HOST)),
     ok.
 
-channel_join(Users, Channel) ->
+channel_join(UserData, Users, Channel) ->
     %% Since I couldn't use lists:member in guard clause in ets:fun2ms, I will work around it here
     ChannelMemberSockets = lists:filtermap(fun({USocket, UUserData}) ->
                                                    case lists:member(Channel, maps:get(channels, UUserData)) of
@@ -61,5 +61,8 @@ channel_join(Users, Channel) ->
                                                            false
                                                    end
                                            end, Users),
-    lists:foreach(fun(S) -> gen_tcp:send(S, "") end, ChannelMemberSockets). % here you need to send <nick>!~<user>@<host> JOIN <channel>
+    lists:foreach(fun(S) ->
+                          lager:debug("Notifying ~p that ~p is joining ~p.~n", [S, maps:get(nick, UserData), Channel]),
+                          gen_tcp:send(S, ":" ++ maps:get(nick, UserData) ++ "!~" ++ maps:get(username, UserData) ++ "@" ++ (?HOST -- ":") ++ "JOIN " ++ Channel ++ "\r\n")
+                  end, ChannelMemberSockets).
                                           

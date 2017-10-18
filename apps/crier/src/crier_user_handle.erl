@@ -16,7 +16,7 @@ strip_crlf(String) ->
 loop(Socket) ->
     case gen_tcp:recv(Socket, 0) of
         {ok, Packet} ->
-            lager:info("Packet ~p received from ~p.~n", [Packet, inet:sockname(Socket)]),
+            lager:debug("Packet ~p received from ~p.~n", [Packet, inet:sockname(Socket)]),
             case Packet of
                 "PING " ++ Host ->
                     crier_user_messages:pong(Socket, strip_crlf(Host));
