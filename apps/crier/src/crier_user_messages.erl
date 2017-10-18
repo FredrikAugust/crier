@@ -58,16 +58,17 @@ channel_join(UserData, Users, Channel) ->
                           gen_tcp:send(S, ":" ++ maps:get(nick, UserData) ++ "!~" ++ maps:get(username, UserData) ++ "@" ++ (?HOST -- ":") ++ "JOIN " ++ Channel ++ "\r\n")
                   end, ChannelMemberSockets).
      
-privmsg(From, To, Message) ->
-    case To of
-        "#" ++ Channel ->
-            lager:debug("Sending message ~p to ~p~n", [Message, To]),
-            Recipients = crier_checks:filter_by_channel(crier_user_store:all(), Channel),
+privmsg({USocket, _, _, UData}, ToChannel, Message) ->
+    case ToChannel of
+        "#" ++ _ ->
+            lager:debug("Sending message ~p to ~p. Origin: ~p~n", [Message, ToChannel, maps:get(nick, UData)]),
+            Recipients = crier_checks:filter_by_channel(crier_user_store:all(), ToChannel) -- [USocket], % no reason to send back to ourselves
+            lager:debug("Recipients: ~p~n", [Recipients]),
             lists:foreach(fun(S) ->
-                                  lager:debug("PRIVMSG dispatched to ~p in ~p~n", [S, Channel]),
-                                  gen_tcp:send(S, ":" ++ maps:get(nick, From) ++ "!~" ++ maps:get(username, From) ++ "@" ++ (?HOST -- ":") ++ "PRIVMSG #" ++ Channel ++ ":" ++ Message)
+                                  lager:debug("PRIVMSG dispatched to ~p in ~p~n", [S, ToChannel]),
+                                  gen_tcp:send(S, ":" ++ maps:get(nick, UData) ++ "!~" ++ maps:get(username, UData) ++ "@" ++ (?HOST -- ":") ++ "PRIVMSG " ++ ToChannel ++ " :" ++ Message)
                           end, Recipients);
         _ ->
             lager:warn("PRIVMSG to users is not yet implemented~n"),
-            unknown_command(From, "PRIVMSG")
+            unknown_command(USocket, "PRIVMSG")
     end.

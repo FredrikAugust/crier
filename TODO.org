@@ -31,12 +31,14 @@ SYNTAX:
 host=name of server for us
 #+END_SRC
 ** TODO show NAMES list when joining
+* DONE handle PRIVMSG
 * TODO handle leaving a channel
 * TODO handle nick-change
 * TODO handle kicking (banning will be skipped for simplicities sake)
 * TODO handle user modes (operator, mod..)
 * TODO use regex for handling IRC messages parsing
   Current system is plain stupid, but it works for now ;)
+* TODO address 2sec lag when messages queue up
 * Notes
 
 IRC response codes

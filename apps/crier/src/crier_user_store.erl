@@ -49,7 +49,8 @@ update_user_data(Socket, Type, Value) ->
     
 lookup(Socket) ->
     lager:debug("Looking up ~p.~n", [Socket]),
-    gen_server:call(?MODULE, {lookup, Socket}).
+    [User] = gen_server:call(?MODULE, {lookup, Socket}),
+    User.
 
 %% CALLBACKS
 init([]) ->
