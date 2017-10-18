@@ -2,7 +2,7 @@
 %% @doc Handles all direct interaction between ETS store
 %% and the rest of the code. Also responsible for managing
 %% the state of each client connected.
-%% @end
+%% @eRATMnd
 %%%-------------------------------------------------------------------
 
 -module(crier_user_store).

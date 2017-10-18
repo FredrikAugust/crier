@@ -13,17 +13,16 @@
   Shouldn't be too hard, just make sure response is `[]` from
   a selection query before setting the nick.
 * TODO send appropriate error codes
-   Refer to table at the bottom of this doc
+  Refer to table at the bottom of this doc
 * TODO find a way to get the address of the server and hostname of the user
   Perhaps an environment variable?
 * DONE send post-reg messages to client if username and nick are set
 * TODO write tests
   Use CommonTest, seems to work best (and easiest)
-* TODO move non-store related business out of crier_user_store
+* DONE move non-store related business out of crier_user_store
 * DONE write module doc for all modules
   Short description of what module does
 ** DONE add short description of each complicated function
-
 * TODO handle joining a channel
 #+BEGIN_SRC txt
 SYNTAX:
@@ -32,6 +31,8 @@ SYNTAX:
 host=name of server for us
 #+END_SRC
 
+* TODO use regex for handling IRC messages parsing
+  Current system is plain stupid, but it works for now ;)
 * Notes
 
 IRC response codes
