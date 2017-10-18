@@ -9,7 +9,7 @@
 
 -behaviour(gen_server).
 
--export([start_link/0, all/0, stop/0, add_client/1, remove_user/1, dispatch_global/1, update_user_data/3, join_channel/2]).
+-export([start_link/0, all/0, stop/0, add_client/1, remove_user/1, dispatch_global/1, update_user_data/3, join_channel/2, lookup/1]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, code_change/3, terminate/2]).
 
 -include_lib("stdlib/include/ms_transform.hrl").
@@ -23,16 +23,16 @@ stop() ->
     gen_server:call(?MODULE, stop).
 
 add_client(Socket) ->
-    lager:info("Adding new client to ETS: ~p.~n", [Socket]),
+    lager:debug("Adding new client to ETS: ~p.~n", [Socket]),
     gen_server:cast(?MODULE, {add_client, Socket}).
 
 join_channel(Socket, Channel) ->
-    lager:info("User ~p joining channel ~p.~n", [Socket, Channel]),
+    lager:debug("User ~p joining channel ~p.~n", [Socket, Channel]),
     {UserData, Users} = gen_server:call(?MODULE, {join_channel, Socket, Channel}),
     crier_user_messages:channel_join(UserData, Users, Channel).
 
 remove_user(Socket) ->
-    lager:info("Removing user ~p.~n", [Socket]),
+    lager:debug("Removing user ~p.~n", [Socket]),
     gen_server:cast(?MODULE, {remove_user, Socket}).
 
 all() ->
@@ -47,6 +47,10 @@ update_user_data(Socket, Type, Value) ->
     NewData = gen_server:call(?MODULE, {update_user_data, Socket, Type, Value}),
     crier_checks:post_reg_check(Socket, NewData).
     
+lookup(Socket) ->
+    lager:debug("Looking up ~p.~n", [Socket]),
+    gen_server:call(?MODULE, {lookup, Socket}).
+
 %% CALLBACKS
 init([]) ->
     ?MODULE = ets:new(?MODULE, [set, named_table, public]),
@@ -68,8 +72,11 @@ handle_call(all, _From, Table) ->
 handle_call({join_channel, USocket, Channel}, _From, Table) ->
     [UserData] = ets:select(Table, ets:fun2ms(fun({TSocket, _, _, TUserData}) when TSocket =:= USocket -> TUserData end)),
     ets:update_element(Table, USocket, {4, UserData#{channels := maps:get(channels, UserData) ++ [Channel]}}),
-    Users = ets:select(Table, ets:fun2ms(fun({TSocket, _, _, TUserData}) -> {TSocket, TUserData} end)),
+    Users = ets:select(Table, ets:fun2ms(fun(User) -> User end)),
     {reply, {UserData, Users}, Table};
+
+handle_call({lookup, Socket}, _From, Table) ->
+    {reply, ets:select(Table, ets:fun2ms(fun({TSock, _, _, _} = TUser) when TSock =:= Socket -> TUser end)), Table};
 
 handle_call(stop, _From, Table) ->
     ets:delete(Table),
@@ -92,12 +99,11 @@ handle_cast({add_client, Socket}, Table) ->
                        #{nick => null, username => null,
                         realname => null, channels => [],
                         post_reg_complete => no}}),
-    lager:info("New client added to ETS: ~p.~n", [Socket]),
     {noreply, Table};
 
 handle_cast({dispatch_global, Msg}, Table) ->
     Users = ets:select(Table, ets:fun2ms(fun({Socket, _, _, _}) -> Socket end)),
-    lager:info("Sending msg: ~p to users: ~p.~n", [Msg, Users]),
+    lager:debug("Sending msg: ~p to users: ~p.~n", [Msg, Users]),
     lists:foreach(fun(Socket) -> gen_tcp:send(Socket, Msg) end, Users),
     {noreply, Table};
 
@@ -106,7 +112,7 @@ handle_cast(_Event, State) ->
 
 %% INFO
 handle_info({'DOWN', Ref, process, _Pid, Reason}, Table) ->
-    lager:info("Process ~p shutting down: ~p.~n", [Ref, Reason]),
+    lager:debug("Process ~p shutting down: ~p.~n", [Ref, Reason]),
     ets:match_delete(Table, {'_', '_', Ref, '_'}),
     {noreply, Table};
 

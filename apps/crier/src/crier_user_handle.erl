@@ -20,6 +20,17 @@ loop(Socket) ->
             case Packet of
                 "PING " ++ Host ->
                     crier_user_messages:pong(Socket, strip_crlf(Host));
+                "PRIVMSG " ++ MessageMeta ->
+                    MessageMetaList = string:split(MessageMeta, " ", all),
+                    case length(MessageMetaList) >= 2 of
+                        true ->
+                            From = crier_user_store:lookup(Socket),
+                            To = lists:nth(1, MessageMetaList),
+                            Message = lists:flatten(lists:join(" ", lists:sublist(MessageMetaList, 2, 256))) -- ":",
+                            crier_user_messages:privmsg(From, To, Message);
+                        false ->
+                            crier_user_messages:too_few_params(Socket, "PRIVMSG")
+                    end;
                 "NICK " ++ Nick ->
                     case crier_checks:unique_nick(Nick) of
                         unique ->
@@ -45,6 +56,6 @@ loop(Socket) ->
             end,
             loop(Socket);
         {error, Reason} ->
-            lager:info("crier_user_handle ~p shutting down: ~p.~n", [Socket, Reason]),
+            lager:debug("crier_user_handle ~p shutting down: ~p.~n", [Socket, Reason]),
             ok
     end.

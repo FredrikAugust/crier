@@ -6,7 +6,7 @@
 
 -module(crier_checks).
 
--export([post_reg_check/2, unique_nick/1]).
+-export([post_reg_check/2, unique_nick/1, filter_by_channel/2]).
 
 %% @doc Checks if the user is ready to receive the postreg
 %% messages. These instanciate the connection between user
@@ -32,3 +32,14 @@ unique_nick(Nick, [CurrNick|Nicks]) ->
 %% @doc Returns wether or not a nick is unique
 unique_nick(Nick) ->
     unique_nick(Nick, lists:map(fun({_, _, _, UData}) -> maps:get(nick, UData) end, crier_user_store:all())).
+
+%% @doc returns only users that share Channel
+filter_by_channel(Users, Channel) ->
+    lists:filtermap(fun({USocket, _, _, UUserData}) ->
+                            case lists:member(Channel, maps:get(channels, UUserData)) of
+                                true ->
+                                    {true, USocket};
+                                false ->
+                                    false
+                            end
+                    end, Users).
