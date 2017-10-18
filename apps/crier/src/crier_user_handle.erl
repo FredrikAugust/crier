@@ -16,7 +16,7 @@ strip_crlf(String) ->
 loop(Socket) ->
     case gen_tcp:recv(Socket, 0) of
         {ok, Packet} ->
-            lager:info("Packet ~p received from ~p~n", [Packet, inet:sockname(Socket)]),
+            lager:info("Packet ~p received from ~p.~n", [Packet, inet:sockname(Socket)]),
             case Packet of
                 "PING " ++ Host ->
                     crier_user_messages:pong(Socket, strip_crlf(Host));
@@ -38,6 +38,8 @@ loop(Socket) ->
                         false ->
                             crier_user_messages:too_few_params(Socket, "USER")
                     end;
+                "JOIN " ++ Channel ->
+                    crier_user_store:join_channel(Socket, strip_crlf(Channel));
                 Command ->
                     crier_user_messages:unknown_command(Socket, strip_crlf(Command))
             end,

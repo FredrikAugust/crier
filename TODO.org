@@ -12,7 +12,7 @@
 * DONE check if nick/username is taken before assigning
   Shouldn't be too hard, just make sure response is `[]` from
   a selection query before setting the nick.
-* TODO send appropriate error codes
+* DONE send appropriate error codes
   Refer to table at the bottom of this doc
 * TODO find a way to get the address of the server and hostname of the user
   Perhaps an environment variable?
