@@ -29,7 +29,7 @@ add_client(Socket) ->
 join_channel(Socket, Channel) ->
     lager:info("User ~p joining channel ~p.~n", [Socket, Channel]),
     Users = gen_server:call(?MODULE, {join_channel, Socket, Channel}),
-    crier_user_messages:channel_join(Socket, Users, Channel).
+    crier_user_messages:channel_join(Users, Channel).
 
 remove_user(Socket) ->
     lager:info("Removing user ~p.~n", [Socket]),
