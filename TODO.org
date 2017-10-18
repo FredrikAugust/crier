@@ -30,7 +30,8 @@ SYNTAX:
 
 host=name of server for us
 #+END_SRC
-** TODO show NAMES list when joining
+** DONE show NAMES list when joining
+** TODO implement names command
 * DONE handle PRIVMSG
 * TODO handle leaving a channel
 * TODO handle nick-change
