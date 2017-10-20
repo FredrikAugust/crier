@@ -18,6 +18,16 @@ it after it _works_.
 
 **END IMPORTANT NOTE**
 
+How this should have been done
+------------------------------
+
+- Have two different state managers for users and channels
+- Don't throw all commands at one synchronous process, this is what created the enormous bottleneck we have now
+- Keep as much as you can asynchronous, as this will spawn another process that doesn't lock up the process
+    - Make almost all IRC commands run asynchronously on the server; there is no reason for us to wait for a confirmation as to whether the message was sent or not. We can let the client handle this
+- Rely more on the client for state management
+- Pay more attention to data structure to avoid passing the entire state around to sync. processes
+
 A partial implementation of the IRC protocol.
 
 This is not meant to be used in production, but a project for me to learn more
